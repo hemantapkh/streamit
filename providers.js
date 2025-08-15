@@ -15,7 +15,7 @@ const STREAMING_PROVIDERS = {
     embed2: {
         name: 'S3',
         movie: (id) => `https://www.2embed.cc/embed/${id}`,
-        series: (id, season, episode) => `https://www.2embed.cc/embed/tv/${id}/${season}/${episode}`,
+        series: (id, season, episode) => `https://www.2embed.cc/embedtv/${id}&s=${season}&e=${episode}`,
         referrerPolicy: null
     },
     embedsu: {
@@ -45,13 +45,13 @@ const STREAMING_PROVIDERS = {
     vidlink: {
         name: 'S8',
         movie: (id) => `https://vidlink.pro/movie/${id}`,
-        series: (id, season, episode) => `https://vidlink.pro/embed/tv/${id}/${season}/${episode}`,
+        series: (id, season, episode) => `https://vidlink.pro/tv/${id}/${season}/${episode}`,
         referrerPolicy: 'no-referrer'
     },
     vidfast: {
         name: 'S9',
         movie: (id) => `https://vidfast.pro/movie/${id}`,
-        series: (id, season, episode) => `https://vidfast.pro/embed/tv/${id}/${season}/${episode}`,
+        series: (id, season, episode) => `https://vidfast.pro/tv/${id}/${season}/${episode}`,
         referrerPolicy: 'no-referrer'
   },
     videasy: {
