@@ -3,6 +3,9 @@
  */
 const App = {
     imdbId: null,
+    mediaType: 'movie',
+    totalSeasons: 0,
+    seriesCache: {},
     elements: {},
 };
 
@@ -28,6 +31,8 @@ async function fetchMediaDetails() {
             console.warn("Media not found in OMDb API.");
             return null;
         }
+        App.mediaType = data.Type;
+        App.totalSeasons = data.totalSeasons;
         return data;
     } catch (error) {
         console.error("Error fetching media details:", error);
@@ -36,28 +41,26 @@ async function fetchMediaDetails() {
 }
 
 /**
- * Renders the skeleton loading state.
+ * Renders the initial layout with all necessary skeleton placeholders.
  */
-function renderSkeleton() {
+function renderInitialLayout() {
     const serverCount = Object.keys(STREAMING_PROVIDERS).length;
-    let serverSkeletons = '';
-    for (let i = 0; i < serverCount; i++) {
-        serverSkeletons += '<div class="skeleton" style="height: 40px; border-radius: 0.75rem;"></div>';
-    }
+    const serverSkeletons = Array(serverCount).fill('<div class="skeleton" style="height: 42px; border-radius: 0.75rem;"></div>').join('');
 
     App.elements.root.innerHTML = `
         <div class="container">
             <div class="top-section">
-                <div class="stream-player-section skeleton"></div>
+                <div>
+                    <div class="stream-player-section skeleton" id="stream-player-section"></div>
+                    <div id="series-controls-placeholder"></div>
+                </div>
                 <aside class="sidebar">
                     <h2>Servers</h2>
-                    <div class="stream-buttons">
-                        ${serverSkeletons}
-                    </div>
+                    <div class="stream-buttons" id="stream-buttons">${serverSkeletons}</div>
                 </aside>
             </div>
-            <div class="info-container">
-                <div class="info-section">
+            <div class="info-container" id="info-container">
+                <div class="info-section" id="info-section">
                     <div class="poster skeleton"></div>
                     <div class="details" style="flex: 1;">
                         <div class="skeleton skeleton-text" style="width: 80%; height: 2.5rem; margin-bottom: 0.5rem;"></div>
@@ -76,35 +79,21 @@ function renderSkeleton() {
             </div>
         </div>
     `;
+
+    // Cache all necessary elements right after they are created
+    App.elements.playerSection = document.getElementById('stream-player-section');
+    App.elements.seriesControlsPlaceholder = document.getElementById('series-controls-placeholder');
+    App.elements.serverButtons = document.getElementById('stream-buttons');
+    App.elements.infoContainer = document.getElementById('info-container');
+    App.elements.infoSection = document.getElementById('info-section');
 }
 
 /**
- * Renders the main application layout.
- */
-function renderMainLayout() {
-    App.elements.root.innerHTML = `
-        <div class="container">
-            <div class="top-section">
-                <div class="stream-player-section" id="stream-player-section"></div>
-                <aside class="sidebar">
-                    <h2>Servers</h2>
-                    <div class="stream-buttons" id="stream-buttons"></div>
-                </aside>
-            </div>
-            <div class="info-container" id="info-container" style="display: none;">
-                <div class="info-section" id="info-section"></div>
-            </div>
-        </div>
-    `;
-}
-
-/**
- * Populates the info section with media details.
+ * Populates the info section with media details, replacing its skeleton.
  * @param {object} data - The media data from OMDb API.
  */
 function renderMediaDetails(data) {
     document.title = `${data.Title} - Stream It`;
-    document.getElementById('info-container').style.display = 'block';
 
     const ratingsHTML = data.Ratings.map(rating => `
         <div class="rating">
@@ -112,7 +101,7 @@ function renderMediaDetails(data) {
             <div><div class="value">${rating.Value}</div><div class="source">${rating.Source}</div></div>
         </div>`).join('');
 
-    document.getElementById('info-section').innerHTML = `
+    App.elements.infoSection.innerHTML = `
         <div class="poster" style="background-image: url(${data.Poster})"></div>
         <div class="details">
             <h1>${data.Title}</h1>
@@ -130,32 +119,169 @@ function renderMediaDetails(data) {
 }
 
 /**
- * Creates and appends server buttons to the sidebar.
+ * Renders the server buttons, replacing their skeleton.
  */
 function renderServerButtons() {
-    const buttonsContainer = document.getElementById('stream-buttons');
-    Object.entries(STREAMING_PROVIDERS).forEach(([id, provider], index) => {
+    App.elements.serverButtons.innerHTML = '';
+    Object.entries(STREAMING_PROVIDERS).forEach(([id, provider]) => {
         const button = document.createElement('button');
         button.className = 'stream-button';
         button.textContent = provider.name;
+        button.dataset.provider = id;
         button.onclick = () => {
             document.querySelectorAll('.stream-button').forEach(btn => btn.classList.remove('active'));
             button.classList.add('active');
             showStream(id);
         };
-        if (index === 0) button.classList.add('active');
-        buttonsContainer.appendChild(button);
+        App.elements.serverButtons.appendChild(button);
     });
 }
 
 /**
- * Displays the selected stream in the player.
+ * Fetches and populates episodes for a given season.
+ * @param {string} season - The season number to fetch.
+ */
+async function fetchEpisodes(season) {
+    const { episodeSelect } = App.elements;
+    episodeSelect.innerHTML = '';
+
+    if (App.seriesCache[season]) {
+        App.seriesCache[season].forEach(episode => {
+            const option = document.createElement('option');
+            option.value = episode.Episode;
+            option.textContent = `Episode ${episode.Episode}: ${episode.Title}`;
+            episodeSelect.appendChild(option);
+        });
+        return;
+    }
+
+    try {
+        const response = await fetch(`https://www.omdbapi.com/?i=${App.imdbId}&Season=${season}&apikey=thewdb`);
+        const data = await response.json();
+        if (data.Response === "True" && data.Episodes) {
+            App.seriesCache[season] = data.Episodes;
+            data.Episodes.forEach(episode => {
+                const option = document.createElement('option');
+                option.value = episode.Episode;
+                option.textContent = `Episode ${episode.Episode}: ${episode.Title}`;
+                episodeSelect.appendChild(option);
+            });
+        }
+    } catch (error) {
+        console.error("Error fetching episodes:", error);
+    }
+}
+
+/**
+ * Renders the series navigation controls, replacing the skeleton placeholder.
+ */
+function setupSeriesControls() {
+    const controlsPlaceholder = App.elements.seriesControlsPlaceholder;
+    controlsPlaceholder.className = 'series-controls';
+    controlsPlaceholder.innerHTML = `
+        <div class="series-selector">
+            <label for="season-select">Season:</label>
+            <select id="season-select"></select>
+        </div>
+        <div class="series-selector">
+            <label for="episode-select">Episode:</label>
+            <select id="episode-select"></select>
+        </div>
+        <div class="episode-nav-container">
+            <button id="prev-episode" class="episode-nav-btn">Previous Episode</button>
+            <button id="next-episode" class="episode-nav-btn">Next Episode</button>
+        </div>
+    `;
+
+    App.elements.seasonSelect = document.getElementById('season-select');
+    App.elements.episodeSelect = document.getElementById('episode-select');
+    App.elements.prevEpisodeBtn = document.getElementById('prev-episode');
+    App.elements.nextEpisodeBtn = document.getElementById('next-episode');
+
+    const { seasonSelect, episodeSelect, prevEpisodeBtn, nextEpisodeBtn } = App.elements;
+
+    for (let i = 1; i <= App.totalSeasons; i++) {
+        const option = document.createElement('option');
+        option.value = i;
+        option.textContent = `Season ${i}`;
+        seasonSelect.appendChild(option);
+    }
+
+    const updateEpisodeNavButtons = () => {
+        const currentSeason = parseInt(seasonSelect.value);
+        const currentEpisode = parseInt(episodeSelect.value);
+        prevEpisodeBtn.disabled = currentSeason === 1 && currentEpisode === 1;
+        nextEpisodeBtn.disabled = currentSeason == App.totalSeasons && currentEpisode === episodeSelect.options.length;
+    };
+
+    const navigateEpisode = async (direction) => {
+        let currentSeason = parseInt(seasonSelect.value);
+        let currentEpisode = parseInt(episodeSelect.value);
+
+        if (direction === 'next') {
+            if (currentEpisode < episodeSelect.options.length) {
+                currentEpisode++;
+            } else if (currentSeason < App.totalSeasons) {
+                currentSeason++;
+                currentEpisode = 1;
+                seasonSelect.value = currentSeason;
+                await fetchEpisodes(currentSeason);
+            }
+        } else { // prev
+            if (currentEpisode > 1) {
+                currentEpisode--;
+            } else if (currentSeason > 1) {
+                currentSeason--;
+                seasonSelect.value = currentSeason;
+                await fetchEpisodes(currentSeason);
+                currentEpisode = episodeSelect.options.length;
+            }
+        }
+        episodeSelect.value = currentEpisode;
+        episodeSelect.dispatchEvent(new Event('change'));
+    };
+
+    seasonSelect.addEventListener('change', async () => {
+        await fetchEpisodes(seasonSelect.value);
+        updateEpisodeNavButtons();
+        showStream(document.querySelector('.stream-button.active').dataset.provider);
+    });
+
+    episodeSelect.addEventListener('change', () => {
+        updateEpisodeNavButtons();
+        showStream(document.querySelector('.stream-button.active').dataset.provider);
+    });
+
+    prevEpisodeBtn.addEventListener('click', () => navigateEpisode('prev'));
+    nextEpisodeBtn.addEventListener('click', () => navigateEpisode('next'));
+    
+    updateEpisodeNavButtons();
+}
+
+/**
+ * Displays the selected stream in the player and updates the URL.
  * @param {string} streamId - The ID of the streaming provider.
  */
 function showStream(streamId) {
-    const playerSection = document.getElementById('stream-player-section');
-    const url = STREAMING_PROVIDERS[streamId].url(App.imdbId);
-    playerSection.innerHTML = `<iframe src="${url}" title="Stream It Player" allowfullscreen></iframe>`;
+    const provider = STREAMING_PROVIDERS[streamId];
+    if (!provider) return;
+
+    const params = new URLSearchParams(window.location.search);
+    let url;
+
+    if (App.mediaType === 'series') {
+        const season = App.elements.seasonSelect.value;
+        const episode = App.elements.episodeSelect.value;
+        url = generateEmbedUrl(streamId, 'series', App.imdbId, season, episode);
+        params.set('season', season);
+        params.set('episode', episode);
+    } else {
+        url = generateEmbedUrl(streamId, 'movie', App.imdbId);
+    }
+    params.set('server', streamId);
+    history.pushState({}, '', `${window.location.pathname}?${params.toString()}`);
+    App.elements.playerSection.classList.remove('skeleton');
+    App.elements.playerSection.innerHTML = `<iframe src="${url}" title="Stream It Player" allowfullscreen></iframe>`;
 }
 
 /**
@@ -172,25 +298,44 @@ function renderError(message) {
 async function init() {
     initBackgroundEffect();
     App.elements.root = document.getElementById('app-root');
-    App.imdbId = new URLSearchParams(window.location.search).get('id');
+    const params = new URLSearchParams(window.location.search);
+    App.imdbId = params.get('id');
 
     if (!App.imdbId) {
         renderError('No IMDb ID provided.');
         return;
     }
 
-    renderSkeleton();
+    renderInitialLayout();
     
     const data = await fetchMediaDetails();
 
-    renderMainLayout();
-
     if (data) {
         renderMediaDetails(data);
+        renderServerButtons();
+
+        if (App.mediaType === 'series') {
+            setupSeriesControls();
+            const season = params.get('season') || '1';
+            const episode = params.get('episode');
+            
+            App.elements.seasonSelect.value = season;
+            await fetchEpisodes(season);
+            
+            if (episode) {
+                App.elements.episodeSelect.value = episode;
+            }
+            App.elements.episodeSelect.dispatchEvent(new Event('change'));
+        }
+    } else {
+        renderError('Media not found.');
+        return;
     }
+
+    const serverId = params.get('server') || Object.keys(STREAMING_PROVIDERS)[0];
     
-    renderServerButtons();
-    showStream(Object.keys(STREAMING_PROVIDERS)[0]);
+    document.querySelector(`.stream-button[data-provider="${serverId}"]`).classList.add('active');
+    showStream(serverId);
 }
 
 // Start the application
