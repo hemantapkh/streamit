@@ -1,25 +1,61 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Find where to stream any IMDb title." />
+    <meta name="theme-color" content="#000000" />
+    <title>Stream It</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'><path d='M5 3l14 9-14 9V3z'/></svg>"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Find where to stream any IMDb title.">
-  <meta name="theme-color" content="#000000">
-  <title>Stream It</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="icon" type="image/svg+xml"
-    href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'><path d='M5 3l14 9-14 9V3z'/></svg>">
-  <link rel="stylesheet" href="style.css">
-</head>
+  <body>
+    <div
+      id="search-bar"
+      style="display: flex; justify-content: center; margin: 2rem 0"
+    >
+      <input
+        id="search-input"
+        type="text"
+        placeholder="Search IMDb title..."
+        style="
+          padding: 0.75rem;
+          width: 300px;
+          border-radius: 0.5rem 0 0 0.5rem;
+          border: 1px solid #475569;
+          background: #222;
+          color: #fff;
+        "
+      />
+      <button
+        id="search-btn"
+        style="
+          padding: 0.75rem 1.5rem;
+          border-radius: 0 0.5rem 0.5rem 0;
+          border: none;
+          background: #0ea5e9;
+          color: #fff;
+          font-weight: 600;
+        "
+      >
+        Search
+      </button>
+    </div>
+    <div id="search-results" style="max-width: 600px; margin: 0 auto"></div>
+    <div id="app-root"></div>
 
-<body>
-  <div id="app-root"></div>
-
-  <script src="providers.js"></script>
-  <script src="app.js"></script>
-</body>
-
+    <script src="providers.js"></script>
+    <script src="app.js"></script>
+  </body>
 </html>
