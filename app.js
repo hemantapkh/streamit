@@ -345,10 +345,44 @@ function renderIdInput() {
 
 
 /**
+ * Handles the disclaimer modal.
+ */
+function handleDisclaimer() {
+    const modal = document.getElementById('disclaimer-modal');
+    const acceptButton = document.getElementById('accept-disclaimer');
+    const neverShowAgain = document.getElementById('never-show-again');
+
+    // If the user has chosen to hide the disclaimer permanently, do nothing.
+    if (localStorage.getItem('hideDisclaimerPermanently') === 'true') {
+        return;
+    }
+
+    // If the disclaimer has been hidden for the current session, do nothing.
+    if (sessionStorage.getItem('disclaimerHiddenForSession') === 'true') {
+        return;
+    }
+
+    // If neither of the above are true, show the modal.
+    modal.style.display = 'flex';
+
+    acceptButton.addEventListener('click', () => {
+        modal.style.display = 'none';
+        if (neverShowAgain.checked) {
+            // If the user ticks the box, set the permanent flag.
+            localStorage.setItem('hideDisclaimerPermanently', 'true');
+        } else {
+            // Otherwise, just hide it for the current session.
+            sessionStorage.setItem('disclaimerHiddenForSession', 'true');
+        }
+    });
+}
+
+/**
  * Initializes the application.
  */
 async function init() {
     initBackgroundEffect();
+    handleDisclaimer();
     App.elements.root = document.getElementById('app-root');
     const params = new URLSearchParams(window.location.search);
     App.imdbId = params.get('id');

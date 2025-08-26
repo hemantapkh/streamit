@@ -18,6 +18,19 @@
 <body>
   <div id="app-root"></div>
 
+  <div id="disclaimer-modal" class="modal-overlay" style="display: none;">
+    <div class="modal-content">
+      <h2>Disclaimer</h2>
+      <p><strong>Legal Notice:</strong> StreamIt functions as a search engine and does not host, store, or control any video content. All content is embedded from publicly available third-party sources. For any DMCA or copyright infringement claims, please contact the <a href="https://github.com/hemantapkh/streamit/blob/main/providers.js" target="_blank" rel="noopener noreferrer">original content hosting site</a> directly, as we have no ability to remove content from those platforms.</p>
+      <p>For a better viewing experience, we recommend using an ad blocker like <a href="https://getadblock.com/" target="_blank" rel="noopener noreferrer">AdBlock</a> or <a href="https://ublockorigin.com/" target="_blank" rel="noopener noreferrer">uBlock Origin</a>, as we have no control over the advertisements displayed on third-party streams.</p>
+      <div class="disclaimer-options">
+        <input type="checkbox" id="never-show-again" name="never-show-again">
+        <label for="never-show-again">Don't show this again</label>
+      </div>
+      <button id="accept-disclaimer">I Understand</button>
+    </div>
+  </div>
+
   <script src="providers.js"></script>
   <script src="app.js"></script>
 </body>
