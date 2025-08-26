@@ -293,6 +293,58 @@ function renderError(message) {
 }
 
 /**
+ * Renders the input form for IMDb/TMDb ID.
+ */
+function renderIdInput() {
+    App.elements.root.innerHTML = `
+        <div class="container">
+            <div class="id-input-container">
+                <h1>Stream It</h1>
+                <p>Enter an IMDb ID to get started.</p>
+                <form id="id-form">
+                    <input type="text" id="id-input" placeholder="e.g., tt1727587" required>
+                    <button type="submit">Stream</button>
+                </form>
+                <p id="error-message" class="error-message" style="display: none;"></p>
+            </div>
+        </div>
+    `;
+
+    const form = document.getElementById('id-form');
+    const input = document.getElementById('id-input');
+    const errorMessage = document.getElementById('error-message');
+    const submitButton = form.querySelector('button');
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const id = input.value.trim();
+        if (!id) return;
+
+        submitButton.disabled = true;
+        submitButton.textContent = 'Validating...';
+        errorMessage.style.display = 'none';
+
+        try {
+            const response = await fetch(`https://www.omdbapi.com/?i=${id}&apikey=thewdb`);
+            const data = await response.json();
+            if (data.Response === "True") {
+                window.location.search = `?id=${id}`;
+            } else {
+                errorMessage.textContent = 'Invalid IMDb ID. Please try again.';
+                errorMessage.style.display = 'block';
+            }
+        } catch (error) {
+            errorMessage.textContent = 'An error occurred while validating the ID.';
+            errorMessage.style.display = 'block';
+        } finally {
+            submitButton.disabled = false;
+            submitButton.textContent = 'Stream';
+        }
+    });
+}
+
+
+/**
  * Initializes the application.
  */
 async function init() {
@@ -302,7 +354,7 @@ async function init() {
     App.imdbId = params.get('id');
 
     if (!App.imdbId) {
-        renderError('No IMDb ID provided.');
+        renderIdInput();
         return;
     }
 

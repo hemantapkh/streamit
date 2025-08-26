@@ -25,11 +25,11 @@ body::before {
   left: 0;
   width: 100%;
   height: 100%;
-  background: radial-gradient(800px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
-      rgba(14, 165, 233, 0.15),
-      transparent 40%);
+  background: radial-gradient(1200px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+      rgba(14, 165, 233, 0.08),
+      transparent 50%);
   z-index: -1;
-  transition: background 0.2s linear;
+  transition: background 0.4s linear;
 }
 
 .container {
@@ -254,6 +254,66 @@ body::before {
   text-align: center;
   padding: 2rem;
 }
+
+.id-input-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  text-align: center;
+}
+
+.id-input-container h1 {
+  font-size: 3rem;
+  margin-bottom: 0.5rem;
+}
+
+.id-input-container p {
+  font-size: 1.125rem;
+  color: var(--text-secondary);
+  margin-bottom: 2rem;
+}
+
+#id-form {
+  display: flex;
+  gap: 0.5rem;
+  width: 100%;
+  max-width: 400px;
+}
+
+#id-input {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  background-color: var(--surface-b);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 0.75rem;
+  font-size: 1rem;
+}
+
+#id-form button {
+  padding: 0.75rem 1.5rem;
+  background-color: var(--primary);
+  color: #ffffff;
+  border: none;
+  border-radius: 0.75rem;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+#id-form button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.error-message {
+  color: #ef4444;
+  margin-top: 1rem;
+}
+
+
 
 /* Skeleton Styles */
 .skeleton {
