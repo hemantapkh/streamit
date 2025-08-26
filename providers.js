@@ -1,61 +1,61 @@
 // Streaming providers configuration
 const STREAMING_PROVIDERS = {
     vidsrc: {
-        name: 'S1',
+        name: 'Vidsrc',
         movie: (id) => `https://vidsrc.net/embed/movie/${id}`,
         series: (id, season, episode) => `https://vidsrc.net/embed/tv/${id}/${season}/${episode}`,
         referrerPolicy: 'no-referrer'
     },
     multiembed: {
-        name: 'S2',
+        name: 'Multiembed',
         movie: (id) => `https://multiembed.mov/directstream.php?video_id=${id}`,
         series: (id, season, episode) => `https://multiembed.mov/directstream.php?video_id=${id}&s=${season}&e=${episode}`,
         referrerPolicy: 'no-referrer'
     },
     embed2: {
-        name: 'S3',
+        name: '2embed',
         movie: (id) => `https://www.2embed.cc/embed/${id}`,
         series: (id, season, episode) => `https://www.2embed.cc/embedtv/${id}&s=${season}&e=${episode}`,
         referrerPolicy: null
     },
     embedsu: {
-        name: 'S4',
+        name: 'Embed.su',
         movie: (id) => `https://embed.su/embed/movie/${id}`,
         series: (id, season, episode) => `https://embed.su/embed/tv/${id}/${season}/${episode}`,
         referrerPolicy: 'no-referrer'
     },
     autoembed: {
-        name: 'S5',
+        name: 'Autoembed',
         movie: (id) => `https://player.autoembed.cc/embed/movie/${id}`,
         series: (id, season, episode) => `https://player.autoembed.cc/embed/tv/${id}/${season}/${episode}`,
         referrerPolicy: 'no-referrer'
     },
     soap2day: {
-        name: 'S6',
+        name: 'Soap2day',
         movie: (id) => `https://soap2dayto.win/embed/movie/${id}`,
         series: (id, season, episode) => `https://soap2dayto.win/embed/tv/${id}/${season}/${episode}`,
         referrerPolicy: 'no-referrer'
     },
     vidsrccc: {
-        name: 'S7',
+        name: 'Vidsrc.cc',
         movie: (id) => `https://vidsrc.cc/v2/embed/movie/${id}`,
         series: (id, season, episode) => `https://vidsrc.cc/v2/embed/tv/${id}/${season}/${episode}`,
         referrerPolicy: 'no-referrer'
     },
     vidlink: {
-        name: 'S8',
+        name: 'Vidlink',
         movie: (id) => `https://vidlink.pro/movie/${id}`,
         series: (id, season, episode) => `https://vidlink.pro/tv/${id}/${season}/${episode}`,
         referrerPolicy: 'no-referrer'
     },
     vidfast: {
-        name: 'S9',
+        name: 'Vidfast',
         movie: (id) => `https://vidfast.pro/movie/${id}`,
         series: (id, season, episode) => `https://vidfast.pro/tv/${id}/${season}/${episode}`,
         referrerPolicy: 'no-referrer'
   },
     videasy: {
-        name: 'S10',
+        name: 'Videasy',
         movie: (id) => `https://player.videasy.net/movie/${id}`,
         series: (id, season, episode) => `https://player.videasy.net/tv/${id}/${season}/${episode}`,
         referrerPolicy: 'no-referrer'
